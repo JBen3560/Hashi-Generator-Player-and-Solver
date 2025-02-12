@@ -136,7 +136,7 @@ void Board::createBranch(int r, int c){
         int dist = randomNum(2,5);
         
         // If branching and branch is valid, make it
-        if(randomNum(1,2) && validBranch(dist, dirs[i], r, c)){
+        if(validBranch(dist, dirs[i], r, c)){
             // Determine whether the branch is one or two bridges
             char branchType;
             int doubleBranch = randomNum(0,1);

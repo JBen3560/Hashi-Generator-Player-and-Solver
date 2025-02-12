@@ -2,7 +2,6 @@
 #define BOARD_H
 
 #include "GridPosition.h"
-using namespace std;
 
 class Board {
 private:
@@ -16,9 +15,9 @@ public:
     void setUpGame(); // Function to set up the game
     int randomNum(int,int); // Function to generate a random number
     void createBranch(int r, int c); // Function to help build the game board
-    int countBranches(int r, int c); // Function to help set island numbers
     bool validBranch(int dist, char dir, int r, int c); // Function to make sure branches generate right
     bool noNeighbors(int r, int c); // Function to make sure an island has no neighbors
+    int countBranches(int r, int c); // Function to help set island numbers
 
     // Game play
     void runGame(); // Function to run the game
