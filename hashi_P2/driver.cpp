@@ -14,8 +14,6 @@ int main() {
     // Set up and run game
     srand(time(0));
     Board b;
-    b.createBranch(b.randomNum(4,5), b.randomNum(4,5));
-    b.printBoard();
-    //b.setUpGame();
-    //b.runGame();
+    b.setUpGame();
+    b.runGame();
 }
