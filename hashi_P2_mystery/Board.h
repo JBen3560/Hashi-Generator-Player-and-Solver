@@ -14,10 +14,7 @@ public:
     // Game setup
     void setUpGame(); // Function to set up the game
     int randomNum(int,int); // Function to generate a random number
-    void setUpBoard(int r, int c); // Function to help build the game board
-    bool validBranch(int dist, char dir, int r, int c); // Function to make sure branches generate right
-    bool noNeighbors(int r, int c); // Function to make sure an island has no neighbors
-    int countBranches(int r, int c); // Function to help set island numbers
+    int countBranches(int r, int c); // Function to count the branches of an island
 
     // Game play
     void runGame(); // Function to run the game
