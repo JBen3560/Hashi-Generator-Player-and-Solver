@@ -15,6 +15,7 @@ public:
     int countBranches(int r, int c); // Function to help set island numbers
     bool checkWin(); // Function to check if the game has been won
     bool validBridge(string input); // Function to make sure a bridge builds right
+    void placeBridges(string input); // Function to place bridges
     void printBoard(); // Function to print the board
 };
 

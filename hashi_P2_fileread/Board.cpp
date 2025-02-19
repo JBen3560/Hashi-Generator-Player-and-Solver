@@ -142,6 +142,34 @@ bool Board::validBridge(string input){
     return true;
 }
 
+// Place bridges
+void Board::placeBridges(string input){
+    int r = input[0] - 'A';
+    int c = input[1] - 'K';
+    char dir = input[3];
+    do{
+        // Move in direction
+        if(dir == 'n') r--;
+        else if(dir == 'e') c++;
+        else if(dir == 's') r++;
+        else c--;
+
+        // Place bridge
+        if(!isdigit(board[r][c].getIsland())){
+            if(dir == 'n' || dir == 's'){
+                if(board[r][c].getIsland() == '.') board[r][c].setIsland('|');
+                else if(board[r][c].getIsland() == '|') board[r][c].setIsland('H');
+                else board[r][c].setIsland('.');
+            }
+            else{
+                if(board[r][c].getIsland() == '.') board[r][c].setIsland('-');
+                else if(board[r][c].getIsland() == '-') board[r][c].setIsland('=');
+                else board[r][c].setIsland('.');
+            }
+        }
+    }while(!isdigit(board[r][c].getIsland())); 
+}
+
 // Function to run the game
 void Board::runGame(){
     do{
@@ -182,30 +210,8 @@ void Board::runGame(){
         }
 
         // Place bridges
-        int r = input[0] - 'A';
-        int c = input[1] - 'K';
-        char dir = input[3];
-        do{
-            // Move in direction
-            if(dir == 'n') r--;
-            else if(dir == 'e') c++;
-            else if(dir == 's') r++;
-            else c--;
+        placeBridges(input);
 
-            // Place bridge
-            if(!isdigit(board[r][c].getIsland())){
-                if(dir == 'n' || dir == 's'){
-                    if(board[r][c].getIsland() == '.') board[r][c].setIsland('|');
-                    else if(board[r][c].getIsland() == '|') board[r][c].setIsland('H');
-                    else board[r][c].setIsland('.');
-                }
-                else{
-                    if(board[r][c].getIsland() == '.') board[r][c].setIsland('-');
-                    else if(board[r][c].getIsland() == '-') board[r][c].setIsland('=');
-                    else board[r][c].setIsland('.');
-                }
-            }
-        }while(!isdigit(board[r][c].getIsland()));        
     }while(!checkWin());
     
     printBoard();
