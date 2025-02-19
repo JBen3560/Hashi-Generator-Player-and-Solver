@@ -1,11 +1,61 @@
 #include "Board.h"
-#include "MysteryMachine.h"
 
-// Default constructor
-Board::Board(){
+// Parameterized constructor
+Board::Board(string filename){
+    // Open the file
+    ifstream file(filename);
+    if (!file) {
+        cout << "Error opening file!" << endl;
+        exit(1);
+    }
+
+    // Create the board
     board = new GridPosition*[10];
     for(int i = 0; i < 10; i++){
         board[i] = new GridPosition[10];
+    }
+
+    // Read the file
+    string line;
+    int r = 0;
+    while (getline(file, line)) {
+        for(int c = 0; c < 10; c++) board[r][c].setIsland(line[c]);
+        r++;
+    }
+
+    file.close(); // Close the file
+    
+    // Set island numbers
+    for(int r = 0; r < 10; r++){
+        for(int c = 0; c < 10; c++){
+            if(board[r][c].getIsland() == '0'){
+                if(r > 0){
+                    if(board[r-1][c].getIsland() == '|') ++board[r][c];
+                    if(board[r-1][c].getIsland() == 'H') board[r][c] = board[r][c] + 2;
+                }
+                if(r < 9){
+                    if(board[r+1][c].getIsland() == '|') ++board[r][c];
+                    if(board[r+1][c].getIsland() == 'H') board[r][c] = board[r][c] + 2;
+                }
+                if(c > 0){
+                    if(board[r][c-1].getIsland() == '-') ++board[r][c];
+                    if(board[r][c-1].getIsland() == '=') board[r][c] = board[r][c] + 2;
+                }
+                if(c < 9){
+                    if(board[r][c+1].getIsland() == '-') ++board[r][c];
+                    if(board[r][c+1].getIsland() == '=') board[r][c] = board[r][c] + 2;
+                }
+            }
+        }
+    }
+
+    // Remove branches
+    for(int r = 0; r < 10; r++){
+        for(int c = 0; c < 10; c++){
+            if(board[r][c].isBridge()){
+                board[r][c].setIsland('.');
+            }
+        }
     }
 }
 
@@ -17,11 +67,6 @@ Board::~Board(){
     delete[] board;
 }
 
-// Function to generate a random number
-int Board::randomNum(int l, int h){
-    return rand() % (h - l + 1) + l;
-}
-
 // Function to print the board
 void Board::printBoard(){
     char row = 'A';
@@ -30,15 +75,14 @@ void Board::printBoard(){
     for (int r = 0; r < 10; r++){
         cout << row << " | ";
         for (int c = 0; c < 10; c++){
-            if((countBranches(r, c) + '0') == board[r][c].getIsland()) cout << "\x1b[32m"; // color green
-            cout << board[r][c].getIsland() << " " << "\x1b[0m";
+            cout << board[r][c].getIsland() << " ";
         }
         cout << endl;
         row++;
     }
 }
 
-// Function to count the number of branches of an island
+// Function to count the number of branches
 int Board::countBranches(int r, int c){
     int count = 0;
     if(r > 0){
@@ -94,47 +138,8 @@ bool Board::validBridge(string input){
             if(board[r][c].getIsland() == 'H' && (dir == 'e' || dir == 'w')) return false;
             if(board[r][c].getIsland() == '=' && (dir == 'n' || dir == 's')) return false;
         }
-    }while(!isdigit(board[r][c].getIsland()));
+    }while(!isdigit(board[r][c].getIsland())); // Go until you hit an island
     return true;
-}
-
-// Function to set up the game
-void Board::setUpGame(){
-    // Initialize board
-    MysteryMachine::setUpBoard(randomNum(4,5), randomNum(4,5), board);
-    
-    // Set island numbers
-    for(int r = 0; r < 10; r++){
-        for(int c = 0; c < 10; c++){
-            if(board[r][c].getIsland() == '0'){
-                if(r > 0){
-                    if(board[r-1][c].getIsland() == '|') ++board[r][c];
-                    if(board[r-1][c].getIsland() == 'H') board[r][c] = board[r][c] + 2;
-                }
-                if(r < 9){
-                    if(board[r+1][c].getIsland() == '|') ++board[r][c];
-                    if(board[r+1][c].getIsland() == 'H') board[r][c] = board[r][c] + 2;
-                }
-                if(c > 0){
-                    if(board[r][c-1].getIsland() == '-') ++board[r][c];
-                    if(board[r][c-1].getIsland() == '=') board[r][c] = board[r][c] + 2;
-                }
-                if(c < 9){
-                    if(board[r][c+1].getIsland() == '-') ++board[r][c];
-                    if(board[r][c+1].getIsland() == '=') board[r][c] = board[r][c] + 2;
-                }
-            }
-        }
-    }
-
-    // Remove branches
-    for(int r = 0; r < 10; r++){
-        for(int c = 0; c < 10; c++){
-            if(board[r][c].isBridge()){
-                board[r][c].setIsland('.');
-            }
-        }
-    }
 }
 
 // Function to run the game
@@ -165,7 +170,7 @@ void Board::runGame(){
             else if(bridgeIsInvalid) cout << "\nInvalid input. That path is blocked or goes off the board." << endl;
             else cout << "\nInvalid input." << endl;
 
-            // Get new input
+            // Get new input and validate
             cout << "Enter a row, a column, a space, and a cardinal direction (e.g. AK n): ";
             getline(cin, input);
             for(int i = 0; i < 2; i++) if(isalpha(input[i])) input[i] = toupper(input[i]);

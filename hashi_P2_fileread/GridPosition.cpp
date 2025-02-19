@@ -23,18 +23,20 @@ bool GridPosition::isBridge(){
 
 // Overload + operator
 GridPosition GridPosition::operator+(int value){
+    GridPosition newIsle = *this;
     if (isdigit(island)) {
-        island = (island - '0' + value) % 10 + '0';
+        newIsle.island = (island - '0' + value) % 10 + '0';
     }
-    return *this;
+    return newIsle;
 }
 
 // Overload - operator
 GridPosition GridPosition::operator-(int value){
+    GridPosition newIsle = *this;
     if (isdigit(island)) {
-        island = (island - '0' - value + 10) % 10 + '0';
+        newIsle.island = (island - '0' - value + 10) % 10 + '0';
     }
-    return *this;
+    return newIsle;
 }
 
 // Prefix increment

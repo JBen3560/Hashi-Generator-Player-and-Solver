@@ -8,16 +8,11 @@ private:
     GridPosition** board; // 2D array of GridPosition objects
 
 public:
-    Board(); // Constructor
+    Board(string); // Parameterized constructor
     ~Board(); // Destructor
 
-    // Game setup
-    void setUpGame(); // Function to set up the game
-    int randomNum(int,int); // Function to generate a random number
-    int countBranches(int r, int c); // Function to count the branches of an island
-
-    // Game play
     void runGame(); // Function to run the game
+    int countBranches(int r, int c); // Function to help set island numbers
     bool checkWin(); // Function to check if the game has been won
     bool validBridge(string input); // Function to make sure a bridge builds right
     void printBoard(); // Function to print the board

@@ -11,9 +11,15 @@ int main() {
     cout << "If there is already a bridge, a second bridge will be added. If there are " << endl;
     cout << "already two bridges, the bridges will be removed." << endl;
 
-    // Set up and run game
+    // Seed random number generator
     srand(time(0));
-    Board b;
-    b.setUpGame();
+
+    // Get filename
+    cout << "\nPlease enter the name of the file you would like to use: ";
+    string filename;
+    getline(cin, filename);
+
+    // Run game
+    Board b(filename);
     b.runGame();
 }
