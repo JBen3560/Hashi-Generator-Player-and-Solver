@@ -1,4 +1,5 @@
 #include "Board.h"
+#include "BoardMaker.h"
 
 // Parameterized constructor
 Board::Board(string filename){
@@ -25,6 +26,53 @@ Board::Board(string filename){
 
     file.close(); // Close the file
     
+    // Set island numbers
+    for(int r = 0; r < 10; r++){
+        for(int c = 0; c < 10; c++){
+            if(board[r][c].getIsland() == '0'){
+                if(r > 0){
+                    if(board[r-1][c].getIsland() == '|') ++board[r][c];
+                    if(board[r-1][c].getIsland() == 'H') board[r][c] = board[r][c] + 2;
+                }
+                if(r < 9){
+                    if(board[r+1][c].getIsland() == '|') ++board[r][c];
+                    if(board[r+1][c].getIsland() == 'H') board[r][c] = board[r][c] + 2;
+                }
+                if(c > 0){
+                    if(board[r][c-1].getIsland() == '-') ++board[r][c];
+                    if(board[r][c-1].getIsland() == '=') board[r][c] = board[r][c] + 2;
+                }
+                if(c < 9){
+                    if(board[r][c+1].getIsland() == '-') ++board[r][c];
+                    if(board[r][c+1].getIsland() == '=') board[r][c] = board[r][c] + 2;
+                }
+            }
+        }
+    }
+
+    // Remove branches
+    for(int r = 0; r < 10; r++){
+        for(int c = 0; c < 10; c++){
+            if(board[r][c].isBridge()){
+                board[r][c].setIsland('.');
+            }
+        }
+    }
+}
+
+// Extra credit constructor
+Board::Board(){
+    // Create the board
+    board = new GridPosition*[10];
+    for(int i = 0; i < 10; i++){
+        board[i] = new GridPosition[10];
+    }
+
+    // Set up the board
+    int r = BoardMaker::randomNum(4, 5);
+    int c = BoardMaker::randomNum(4, 5);
+    BoardMaker::setUpBoard(r, c, board);
+
     // Set island numbers
     for(int r = 0; r < 10; r++){
         for(int c = 0; c < 10; c++){

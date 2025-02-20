@@ -3,7 +3,7 @@
 // Main function
 int main() {
     // Print instructions
-    cout << "\nWelcome to CPSC 1070 Hashi!" << endl;
+    cout << "\nWelcome to CPSC 1070 _____!" << endl;
     cout << "\nThe goal is to connect all of the islands into a single connected group" << endl;
     cout << "by creating a series of bridges between the islands. The number of bridges" << endl;
     cout << "coming off of an island must match the number on that island." << endl;
@@ -11,8 +11,10 @@ int main() {
     cout << "If there is already a bridge, a second bridge will be added. If there are " << endl;
     cout << "already two bridges, the bridges will be removed." << endl;
 
-    // Seed random number generator
-    srand(time(0));
+    // EXTRA CREDIT - uncomment this and comment all below or something
+    /* srand(time(0));
+    Board b;
+    b.runGame(); */
 
     // Get filename
     cout << "\nPlease enter the name of the file you would like to use: ";

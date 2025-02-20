@@ -9,6 +9,7 @@ private:
 
 public:
     Board(string); // Parameterized constructor
+    Board(); // Extra credit constructor
     ~Board(); // Destructor
 
     void runGame(); // Function to run the game
