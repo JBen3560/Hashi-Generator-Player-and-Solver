@@ -11,14 +11,14 @@ using namespace std;
 
 class GridPosition {
 private:
-    char island;
+    char node;
 
 public:
     GridPosition(); // Constructor
     GridPosition(char); // Constructor
-    void setIsland(char); // Set island
-    char getIsland(); // Get island
-    bool isBridge(); // Check if island is a bridge
+    void setNode(char); // Set node
+    char getNode(); // Get node
+    bool isChain(); // Check if node is a chain
 
     GridPosition operator+(int); // Overload + operator
     GridPosition operator-(int); // Overload - operator
