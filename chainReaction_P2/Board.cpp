@@ -1,5 +1,9 @@
 #include "Board.h"
 #include "BoardMaker.h"
+#include "BoardSolver.h"
+
+// TODO: Fix recursion causing multiple congrats messages by having runGame
+// just return the board and printing it the final time in the driver.
 
 // Default constructor
 Board::Board(){
@@ -35,7 +39,7 @@ Board::Board(string filename){
 
     file.close(); // Close the file
     
-    // Set node numbers
+    /* // Set node numbers
     for(int r = 0; r < 10; r++){
         for(int c = 0; c < 10; c++){
             if(board[r][c].getNode() == '0'){
@@ -66,7 +70,7 @@ Board::Board(string filename){
                 board[r][c].setNode('.');
             }
         }
-    }
+    } */
 }
 
 // Extra credit constructor
@@ -132,7 +136,8 @@ void Board::printBoard(){
     for (int r = 0; r < 10; r++){
         cout << row << " | ";
         for (int c = 0; c < 10; c++){
-            cout << board[r][c].getNode() << " ";
+            if((countChains(r, c) + '0') == board[r][c].getNode()) cout << "\x1b[32m"; // color green
+                cout << board[r][c].getNode() << " " << "\x1b[0m";
         }
         cout << endl;
         row++;
@@ -229,46 +234,78 @@ void Board::placeChains(string input){
 
 // Function to run the game
 void Board::runGame(){
+    // Check if playing manually or automatically
+    printBoard();
+    cout << "\nDo you want to play manually or automatically? (m/a): ";
+    string input = "";
     do{
-        // Print board
-        printBoard();
-
-        // Input
-        string input = "";
-        cout << "\nEnter a row, a column, a space, and a cardinal direction (e.g. AK n): ";
         getline(cin, input);
-        for(int i = 0; i < 2; i++) if(isalpha(input[i])) input[i] = toupper(input[i]);
+        input[0] = tolower(input[0]);
+        if(input[0] != 'm' && input[0] != 'a') cout << "Invalid input. Enter 'm' or 'a': ";
+    }while(input[0] != 'm' && input[0] != 'a');
 
-        // Validate input
-        bool wrongLength = input.length() != 4;
-        bool wrongPos = (input[0] < 'A' || input[0] > 'J') || (input[1] < 'K' || input[1] > 'T');
-        bool wrongDir = (input[2] != ' ') || (input[3] != 'n' && input[3] != 'e' && input[3] != 's' && input[3] != 'w');
-        bool noNode = wrongLength || wrongPos || !(isdigit(board[input[0] - 'A'][input[1] - 'K'].getNode()));
-        bool chainIsInvalid = wrongLength || wrongPos || wrongDir || !validChain(input);
-        while(wrongLength || wrongPos || wrongDir || noNode || chainIsInvalid){
-            if(wrongLength) cout << "\nInvalid input. Too many or too few characters." << endl;
-            else if(wrongPos) cout << "\nInvalid input. Row must be A-J and column must be K-T." << endl;
-            else if(wrongDir) cout << "\nInvalid input. Direction must be n, e, s, or w and there must be a space between the column and direction." << endl;
-            else if(noNode) cout << "\nInvalid input. There is no node at that location." << endl;
-            else if(chainIsInvalid) cout << "\nInvalid input. That path is blocked or goes off the board." << endl;
-            else cout << "\nInvalid input." << endl;
+    // Automatic
+    if(input[0] == 'a'){
+        pair<GridPosition**,bool> pair = BoardSolver::solve(board);
+        board = pair.first;
+        if(!pair.second) runGame();
 
-            // Get new input and validate
-            cout << "Enter a row, a column, a space, and a cardinal direction (e.g. AK n): ";
+    // Manual
+    }else if(input[0] == 'm'){
+        do{
+            // Print board
+            printBoard();
+
+            // Input
+            input = "";
+            cout << "\nEnter a row, column, and cardinal direction (e.g. AK n), or 'z' to change mode: ";
             getline(cin, input);
             for(int i = 0; i < 2; i++) if(isalpha(input[i])) input[i] = toupper(input[i]);
-            wrongLength = input.length() != 4;
-            wrongPos = (input[0] < 'A' || input[0] > 'J') || (input[1] < 'K' || input[1] > 'T');
-            wrongDir = (input[2] != ' ') || (input[3] != 'n' && input[3] != 'e' && input[3] != 's' && input[3] != 'w');
-            noNode = wrongLength || wrongPos || !(isdigit(board[input[0] - 'A'][input[1] - 'K'].getNode()));
-            chainIsInvalid = wrongLength || wrongPos || wrongDir || !validChain(input);
-        }
 
-        // Place chains
-        placeChains(input);
+            // Change to automatic
+            if(input[0] == 'Z'){
+                runGame();
+                break;
+            }
 
-    }while(!checkWin());
-    
+            // Validate input
+            bool wrongLength = input.length() != 4;
+            bool wrongPos = (input[0] < 'A' || input[0] > 'J') || (input[1] < 'K' || input[1] > 'T');
+            bool wrongDir = (input[2] != ' ') || (input[3] != 'n' && input[3] != 'e' && input[3] != 's' && input[3] != 'w');
+            bool noNode = wrongLength || wrongPos || !(isdigit(board[input[0] - 'A'][input[1] - 'K'].getNode()));
+            bool chainIsInvalid = wrongLength || wrongPos || wrongDir || !validChain(input);
+            while(wrongLength || wrongPos || wrongDir || noNode || chainIsInvalid){
+                if(wrongLength) cout << "\nInvalid input. Too many or too few characters." << endl;
+                else if(wrongPos) cout << "\nInvalid input. Row must be A-J and column must be K-T." << endl;
+                else if(wrongDir) cout << "\nInvalid input. Direction must be n, e, s, or w and there must be a space between the column and direction." << endl;
+                else if(noNode) cout << "\nInvalid input. There is no node at that location." << endl;
+                else if(chainIsInvalid) cout << "\nInvalid input. That path is blocked or goes off the board." << endl;
+                else cout << "\nInvalid input." << endl;
+
+                // Get new input and validate
+                cout << "Enter a row, a column, a space, and a cardinal direction (e.g. AK n): ";
+                getline(cin, input);
+                for(int i = 0; i < 2; i++) if(isalpha(input[i])) input[i] = toupper(input[i]);
+                wrongLength = input.length() != 4;
+                wrongPos = (input[0] < 'A' || input[0] > 'J') || (input[1] < 'K' || input[1] > 'T');
+                wrongDir = (input[2] != ' ') || (input[3] != 'n' && input[3] != 'e' && input[3] != 's' && input[3] != 'w');
+                noNode = wrongLength || wrongPos || !(isdigit(board[input[0] - 'A'][input[1] - 'K'].getNode()));
+                chainIsInvalid = wrongLength || wrongPos || wrongDir || !validChain(input);
+            }
+
+            // Place chains
+            placeChains(input);
+
+        }while(!checkWin());
+
+        
+
+    // Invalid input
+    }else{
+        cout << "\nInvalid input. Quitting.\n" << endl;
+        return;
+    }
+
     printBoard();
     cout << "\nCongratulations! You have connected all the nodes!" << endl;
     cout << endl;
