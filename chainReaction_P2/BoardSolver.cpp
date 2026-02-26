@@ -2,7 +2,7 @@
 
 GridPosition** BoardSolver::wboard = nullptr;
 
-// Function to generate a random number
+// Function solve a board and return the solved board and whether it was successful
 pair<GridPosition**,bool> BoardSolver::solve(GridPosition** board){
     wboard = board;
     bool solved;
@@ -23,6 +23,7 @@ pair<GridPosition**,bool> BoardSolver::solve(GridPosition** board){
                     int neighborSum = 0;
                     vector<int> adjChains = getNodeAdjChains(r,c);
                     vector<int> neighbors = getNodeNeighbors(r,c,adjChains);
+                    vector<int> nodeVals = getNodeValues(r,c);
                     for(int i = 0; i < 4; i++) nodeChains += adjChains[i];
                     for(int i = 0; i < 4; i++) if(neighbors[i] > 0) neighborSum += neighbors[i];
 
@@ -58,12 +59,16 @@ pair<GridPosition**,bool> BoardSolver::solve(GridPosition** board){
                             }
                         }
 
-                        /* cout << "\nNode: " << wboard[r][c].getNode();
-                        cout << "\nNode Sum: " << nodeChains;
-                        for(int i = 0; i < 4; i++) cout << "\nChain " << i+1 << ": " << adjChains[i];
-                        cout << "\nNeighbor Sum: " << neighborSum;
-                        for(int i = 0; i < 4; i++) cout << "\nNeighbor " << i+1 << ": " << neighbors[i];
-                        cout << endl; */
+                        // Prevent two-island segments of 1's and 2's
+                        // code here
+
+                        //cout << "\nNode: " << wboard[r][c].getNode();
+                        //for(int i = 0; i < 4; i++) cout << "\nValue " << i << ": " << nodeVals[i];
+                        //cout << "\nNode Sum: " << nodeChains;
+                        //for(int i = 0; i < 4; i++) cout << "\nChain " << i << ": " << adjChains[i];
+                        //cout << "\nNeighbor Sum: " << neighborSum;
+                        //for(int i = 0; i < 4; i++) cout << "\nNeighbor " << i << ": " << neighbors[i];
+                        //cout << endl;
                     }
                 }
             }
@@ -150,7 +155,7 @@ int BoardSolver::findNeighborValue(int r, int c, char dir){
             if(wboard[r][c].getNode() == 'H' && (dir == 'e' || dir == 'w')) return -1;
             if(wboard[r][c].getNode() == '=' && (dir == 'n' || dir == 's')) return -1;
         }
-    }while(!isdigit(wboard[r][c].getNode())); // Go until you hit an node
+    }while(!isdigit(wboard[r][c].getNode())); // Go until you hit a node
 
     // Return how many chains can be accepted in this direction
     int functionalValue = wboard[r][c].getNode() - '0';
@@ -183,4 +188,48 @@ void BoardSolver::placeChains(int r, int c, char dir){
             }
         }
     }while(!isdigit(wboard[r][c].getNode())); // Place until you reach a node
+}
+
+// Get the values of the first nodes in each direction
+vector<int> BoardSolver::getNodeValues(int r, int c){
+    vector<int> values(4, -1);
+    bool offBoard, blocked, hitNode;
+
+    // Check all four directions for a node
+    for(int i = 0; i < 4; i++){
+        int rTemp = r, cTemp = c;
+        offBoard = false;
+        blocked = false;
+        hitNode = false;
+        do{
+            // Move in direction
+            switch(i){
+                case 0: rTemp--; break;
+                case 1: cTemp++; break;
+                case 2: rTemp++; break;
+                case 3: cTemp--;
+            }
+
+            // Check if off board
+            offBoard = (rTemp < 0 || rTemp > 9 || cTemp < 0 || cTemp > 9);
+
+            if(!offBoard){
+                // Check if path is blocked
+                blocked = false;
+                if(wboard[rTemp][cTemp].getNode() != '.' && !isdigit(wboard[rTemp][cTemp].getNode())){
+                    if(wboard[rTemp][cTemp].getNode() == '|' && (i == 1 || i == 3)) blocked = true;
+                    if(wboard[rTemp][cTemp].getNode() == '-' && (i == 0 || i == 2)) blocked = true;
+                    if(wboard[rTemp][cTemp].getNode() == 'H' && (i == 1 || i == 3)) blocked = true;
+                    if(wboard[rTemp][cTemp].getNode() == '=' && (i == 0 || i == 2)) blocked = true;
+                }
+
+                // Check if hit a node
+                hitNode = isdigit(wboard[rTemp][cTemp].getNode());
+            }
+        }while(!offBoard && !blocked && !hitNode); // Go until you hit a node, block, or go off board
+
+        if(hitNode) values[i] = wboard[rTemp][cTemp].getNode() - '0';
+    }
+
+    return values;
 }
